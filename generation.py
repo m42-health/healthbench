@@ -50,7 +50,14 @@ def load_dataset(input_filepath="data/health_bench.jsonl"):
     return ds
 
 
-def run(task_type: str = "Normal", output_dir: str = "data/generations"):
+def run(
+    task_type: str = "Normal",
+    output_dir: str = "data/generations",
+    model_id: str = MODEL_ID,
+):
+    global MODEL_ID
+    MODEL_ID = model_id  # In case a different model name is passed
+
     if task_type == "Normal":
         INPUT_FILE_PATH = "data/benchmark/health_bench.jsonl"
     elif task_type == "Hard":

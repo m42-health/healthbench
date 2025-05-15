@@ -241,7 +241,12 @@ def _aggregate_get_clipped_mean(
     return final_metrics
 
 
-def run(input_data_path: str = "data/generations/qwen2.5-72b.jsonl"):
+def run(
+    input_data_path: str = "data/generations/qwen2.5-72b.jsonl",
+    model_id: str = MODEL_ID,
+):
+    global MODEL_ID
+    MODEL_ID = model_id  # In case a different model name is passed
 
     ds = load_dataset(input_filepath=input_data_path)
 
