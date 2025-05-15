@@ -8,7 +8,12 @@ import numpy as np
 import fire
 
 from ast import literal_eval
-from prompts import GRADER_TEMPLATE, SYSTEM_PROMPT
+from prompts import (
+    GRADER_TEMPLATE,
+    SYSTEM_PROMPT,
+    HARD_PROMPT_IDS,
+    CONSENSUS_PROMPT_IDS,
+)
 
 # Assuming the model is hosted with OpenAI compatible api
 client = OpenAI(api_key="EMPTY", base_url="http://localhost:8000/v1")
@@ -84,6 +89,10 @@ def calculate_score(grading_response_list: list[dict]) -> float | None:
 
 
 def grade_sample(example, max_retries=30):
+    # if the input file has relevant keys, skipping grading
+    if "score" in example.keys() and "metrics" in example.keys():
+        return example
+
     convo_with_response = example["prompt"] + example["prompt_response"]
 
     def grade_rubric_item(rubric_item: str):
@@ -185,6 +194,7 @@ def grade_sample(example, max_retries=30):
         "score": metrics["overall_score"],
         "metrics": str(metrics),
         "responses": str(grading_response_list),
+        "prompt_id": example["prompt_id"],
     }
 
 
@@ -241,6 +251,26 @@ def _aggregate_get_clipped_mean(
     return final_metrics
 
 
+def process_and_save(subset_name: str, subset_ds: dict, output_dir: str):
+    try:
+        final_metrics = _aggregate_get_clipped_mean(subset_ds)
+    except Exception as e:
+        print(f"Error processing {subset_name}: {e}")
+        breakpoint()
+
+    print(f"{subset_name} final metrics:", final_metrics)
+
+    # Save individual results
+    # subset_ds.to_json(
+    #     os.path.join(output_dir, f"judge_responses_{subset_name.lower()}.jsonl"),
+    #     lines=True,
+    # )
+    with open(
+        os.path.join(output_dir, f"final_metrics_{subset_name.lower()}.json"), "w"
+    ) as f:
+        json.dump(final_metrics, f, indent=2)
+
+
 def run(
     input_data_path: str = "data/generations/qwen2.5-72b.jsonl",
     model_id: str = MODEL_ID,
@@ -251,12 +281,6 @@ def run(
     ds = load_dataset(input_filepath=input_data_path)
 
     metrics_ds = ds.map(lambda x: grade_sample(x), num_proc=mp.cpu_count())
-    # grade_sample(ds[0])
-
-    try:
-        final_metrics = _aggregate_get_clipped_mean(metrics_ds)
-    except:
-        breakpoint()
 
     # Extract base name without extension
     base_name = os.path.splitext(os.path.basename(input_data_path))[0]
@@ -265,12 +289,28 @@ def run(
     output_dir = os.path.join("data", base_name)
     os.makedirs(output_dir, exist_ok=True)
 
-    # breakpoint()
-    print(final_metrics)
-    metrics_ds.to_json(os.path.join(output_dir, "judge_responses.jsonl"), lines=True)
+    HEALTHBENCH_CLASSES = ["ALL", "HARD", "CONSENSUS"]
 
-    with open(os.path.join(output_dir, "final_metrics.json"), "w") as f:
-        json.dump(final_metrics, f, indent=2)
+    # ALL
+    process_and_save("ALL", metrics_ds, output_dir=output_dir)
+
+    # HARD
+    hard_ds = metrics_ds.filter(
+        lambda x: x["prompt_id"] in HARD_PROMPT_IDS,
+        num_proc=mp.cpu_count() // 2,
+        desc="Filtering HARD samples",
+    )
+    process_and_save("HARD", hard_ds, output_dir=output_dir)
+
+    # CONSENSUS
+    consensus_ds = metrics_ds.filter(
+        lambda x: x["prompt_id"] in CONSENSUS_PROMPT_IDS,
+        num_proc=mp.cpu_count() // 2,
+        desc="Filtering CONSENSUS samples",
+    )
+    process_and_save("CONSENSUS", consensus_ds, output_dir=output_dir)
+
+    metrics_ds.to_json(os.path.join(output_dir, "judge_responses.jsonl"), lines=True)
 
 
 if __name__ == "__main__":

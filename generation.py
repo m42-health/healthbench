@@ -51,28 +51,19 @@ def load_dataset(input_filepath="data/health_bench.jsonl"):
 
 
 def run(
-    task_type: str = "Normal",
     output_dir: str = "data/generations",
     model_id: str = MODEL_ID,
 ):
     global MODEL_ID
     MODEL_ID = model_id  # In case a different model name is passed
 
-    if task_type == "Normal":
-        INPUT_FILE_PATH = "data/benchmark/health_bench.jsonl"
-    elif task_type == "Hard":
-        INPUT_FILE_PATH = "data/benchmark/hard_health_bench.jsonl"
-    elif task_type == "Consensus":
-        INPUT_FILE_PATH = "data/benchmark/consensus_health_bench.jsonl"
-    else:
-        raise ValueError("Possible tasktypes: ['Normal', 'Hard', 'Consensus']")
+    INPUT_FILE_PATH = "data/benchmark/health_bench.jsonl"
 
     ds = load_dataset(input_filepath=INPUT_FILE_PATH)
+
     ds = ds.map(lambda x: complete_turn(x), num_proc=mp.cpu_count() // 2)
 
-    ds.to_json(
-        os.path.join(output_dir, f"{MODEL_ID}_{task_type.lower()}.jsonl"), lines=True
-    )
+    ds.to_json(os.path.join(output_dir, f"{MODEL_ID}.jsonl"), lines=True)
 
 
 if __name__ == "__main__":
