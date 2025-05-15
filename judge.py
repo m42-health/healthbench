@@ -55,8 +55,10 @@ def backup_parse_json_to_dict(json_string: str) -> dict:
     except json.JSONDecodeError as e:
         print(f"JSON decoding failed: {e}. Backup parsing invoked!!")
         if "true" in json_cleaned.lower():
+            print("Found criteria_met=true!")
             return {"criteria_met": True, "explanation": "None"}
         elif "false" in json_cleaned.lower():
+            print("Found criteria_met=false!")
             return {"criteria_met": False, "explanation": "None"}
         else:
             return {"criteria_met": False, "explanation": "None"}
@@ -269,28 +271,3 @@ def run(input_data_path: str = "data/generations/qwen2.5-72b.jsonl"):
 if __name__ == "__main__":
 
     fire.Fire(run)
-    # INPUT_DATA_PATH = "data/generations/qwen2.5-72b.jsonl"
-    # # INPUT_DATA_PATH = "data/temp.jsonl"
-    # ds = load_dataset(input_filepath=INPUT_DATA_PATH)
-
-    # metrics_ds = ds.map(lambda x: grade_sample(x), num_proc=mp.cpu_count())
-    # # grade_sample(ds[0])
-
-    # try:
-    #     final_metrics = _aggregate_get_clipped_mean(metrics_ds)
-    # except:
-    #     breakpoint()
-
-    # # Extract base name without extension
-    # base_name = os.path.splitext(os.path.basename(INPUT_DATA_PATH))[0]
-
-    # # Create target directory
-    # output_dir = os.path.join("data", base_name)
-    # os.makedirs(output_dir, exist_ok=True)
-
-    # # breakpoint()
-    # print(final_metrics)
-    # metrics_ds.to_json(os.path.join(output_dir, "judge_responses.jsonl"), lines=True)
-
-    # with open(os.path.join(output_dir, "final_metrics.json"), "w") as f:
-    #     json.dump(final_metrics, f, indent=2)
