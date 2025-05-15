@@ -198,7 +198,7 @@ def grade_sample(example, max_retries=30):
     }
 
 
-def load_dataset(input_filepath="data/qwen2.5-72b.jsonl"):
+def load_dataset(input_filepath: str = None):
     with open(input_filepath) as f:
         data = [json.loads(line) for line in f]
 
@@ -272,15 +272,8 @@ def process_and_save(subset_name: str, subset_ds: dict, output_dir: str):
 
 
 def run(
-    input_data_path: str = "data/generations/qwen2.5-72b.jsonl",
-    model_id: str = MODEL_ID,
+    input_data_path: str = None,
 ):
-    global MODEL_ID
-    MODEL_ID = model_id  # In case a different model name is passed
-
-    ds = load_dataset(input_filepath=input_data_path)
-
-    metrics_ds = ds.map(lambda x: grade_sample(x), num_proc=mp.cpu_count())
 
     # Extract base name without extension
     base_name = os.path.splitext(os.path.basename(input_data_path))[0]
@@ -288,6 +281,12 @@ def run(
     # Create target directory
     output_dir = os.path.join("data", base_name)
     os.makedirs(output_dir, exist_ok=True)
+
+    print(f"Files will be saved at {output_dir}")
+
+    ds = load_dataset(input_filepath=input_data_path)
+
+    metrics_ds = ds.map(lambda x: grade_sample(x), num_proc=mp.cpu_count())
 
     HEALTHBENCH_CLASSES = ["ALL", "HARD", "CONSENSUS"]
 

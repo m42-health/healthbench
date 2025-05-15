@@ -10,7 +10,8 @@ from prompts import SYSTEM_PROMPT
 # Assuming the model is hosted with OpenAI compatible api
 client = OpenAI(api_key="EMPTY", base_url="http://localhost:8000/v1")
 
-MODEL_ID = "qwen2.5-72b"
+MODEL_ID = "llama4-maverick"
+# MODEL_ID = "whatever-model"
 
 
 def generate_response(
@@ -52,10 +53,11 @@ def load_dataset(input_filepath="data/health_bench.jsonl"):
 
 def run(
     output_dir: str = "data/generations",
-    model_id: str = MODEL_ID,
+    model_id: str = None,
 ):
     global MODEL_ID
-    MODEL_ID = model_id  # In case a different model name is passed
+    if model_id is not None:
+        MODEL_ID = model_id  # In case a different model name is passed
 
     INPUT_FILE_PATH = "data/benchmark/health_bench.jsonl"
 
