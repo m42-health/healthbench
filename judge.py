@@ -18,7 +18,7 @@ from prompts import (
 # Assuming the model is hosted with OpenAI compatible api
 client = OpenAI(api_key="EMPTY", base_url="http://localhost:8000/v1")
 
-MODEL_ID = "qwen2.5-72b"
+MODEL_ID = "llama3.1-70b-instruct"
 
 
 def generate_response(
@@ -59,7 +59,9 @@ def backup_parse_json_to_dict(json_string: str) -> dict:
         return json.loads(json_cleaned)
     except json.JSONDecodeError as e:
         print(f"JSON decoding failed: {e}. Backup parsing invoked!!")
-        if "true" in json_cleaned.lower():
+        if (
+            "true" in json_cleaned.lower()
+        ):  # A hack to assign value to 'criteria_met' instead of a random choice
             print("Found criteria_met=true!")
             return {"criteria_met": True, "explanation": "None"}
         elif "false" in json_cleaned.lower():

@@ -39,7 +39,7 @@ python generation.py --model_id="med42-v2-70b"
 ## Grading Responses
 
 Evaluate the generated responses using the `judge.py` script. This script compares model outputs against the physician-created rubrics and computes detailed evaluation metrics.
-
+Grading responses requires a model to be available locally or hosted remotely for evaluating against the rubrics. You may need to modify `judge.py` to match your model's API or configuration.
 ```bash
 python judge.py --input_data_path="data/generations/med42-v2-70b.jsonl"
 ```
@@ -47,7 +47,7 @@ python judge.py --input_data_path="data/generations/med42-v2-70b.jsonl"
 This will generate two output files in the working directory:
 
 - `full_metrics_all.json`: Contains overall scores and detailed results across all themes and rubric axes in the complete HealthBench dataset.
-- `full_metrics_hard.json`: Contains results focused on the more challenging subset of examples (HealthBench Hard), including scores across critical dimensions.
+- `full_metrics_hard.json`: Contains results focused on the more challenging subset of examples (HealthBench Hard).
 
 These files provide granular insights into how the model performs in both general and difficult medical scenarios.
 
