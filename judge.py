@@ -260,11 +260,6 @@ def process_and_save(subset_name: str, subset_ds: dict, output_dir: str):
 
     print(f"{subset_name} final metrics:", final_metrics)
 
-    # Save individual results
-    # subset_ds.to_json(
-    #     os.path.join(output_dir, f"judge_responses_{subset_name.lower()}.jsonl"),
-    #     lines=True,
-    # )
     with open(
         os.path.join(output_dir, f"final_metrics_{subset_name.lower()}.json"), "w"
     ) as f:
@@ -288,8 +283,6 @@ def run(
 
     metrics_ds = ds.map(lambda x: grade_sample(x), num_proc=mp.cpu_count())
 
-    HEALTHBENCH_CLASSES = ["ALL", "HARD", "CONSENSUS"]
-
     # ALL
     process_and_save("ALL", metrics_ds, output_dir=output_dir)
 
@@ -302,12 +295,13 @@ def run(
     process_and_save("HARD", hard_ds, output_dir=output_dir)
 
     # CONSENSUS
-    consensus_ds = metrics_ds.filter(
-        lambda x: x["prompt_id"] in CONSENSUS_PROMPT_IDS,
-        num_proc=mp.cpu_count() // 2,
-        desc="Filtering CONSENSUS samples",
-    )
-    process_and_save("CONSENSUS", consensus_ds, output_dir=output_dir)
+    # TODO: Consensus filtering might not be as straight forward as HARD subset. It requires rubric filtering as well
+    # consensus_ds = metrics_ds.filter(
+    #     lambda x: x["prompt_id"] in CONSENSUS_PROMPT_IDS,
+    #     num_proc=mp.cpu_count() // 2,
+    #     desc="Filtering CONSENSUS samples",
+    # )
+    # process_and_save("CONSENSUS", consensus_ds, output_dir=output_dir)
 
     metrics_ds.to_json(os.path.join(output_dir, "judge_responses.jsonl"), lines=True)
 

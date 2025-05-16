@@ -1,18 +1,11 @@
 # Healthbench - Standalone implementation
 
 ## Running server
-```shell
-# /home/praveen/miniconda3/envs/self-rewarding-llm/bin/python -m vllm.entrypoints.openai.api_server \
-/home/praveen/miniconda3/envs/r1-training/bin/python -m vllm.entrypoints.openai.api_server \
-        --model /models_llm/Qwen2.5-72B-Instruct \
-        --port 8000 \
-        --tensor-parallel-size 8 \
-        --gpu-memory-utilization 0.85 \
-        --trust-remote-code \
-        --enable_prefix_caching \
-        --served-model-name qwen2.5-72b
+Any endpoint compatible with OpenAI's API can be used. In this example, we’re using the vLLM library to launch a server.
 
-/home/praveen/miniconda3/envs/r1-training/bin/python -m vllm.entrypoints.openai.api_server \
+```shell
+# This will lauch a server at default port 8000
+python -m vllm.entrypoints.openai.api_server \
         --model m42-health/Llama3-Med42-70B \
         --port 8000 \
         --tensor-parallel-size 8 \
@@ -21,22 +14,16 @@
         --enable_prefix_caching \
         --served-model-name med42-v2-70b
 
-/home/praveen/miniconda3/envs/r1-training/bin/python -m vllm.entrypoints.openai.api_server \
-        --model /models_llm/Llama-4-Maverick-17B-128E-Instruct \
-        --port 8000 \
-        --tensor-parallel-size 8 \
-        --gpu-memory-utilization 0.85 \
-        --trust-remote-code \
-        --enable_prefix_caching \
-        --max-model-len 16192 \
-        --served-model-name llama4-maverick
 ```
 
 ## Generation
+Use either the server or OpenAI models to generate responses for the HealthBench dataset. The generated responses will be saved in the `data/generations` directory.
 
 ```shell
 python generation.py --model_id="med42-v2-70b"
-# python generation.py --model_id="llama4-maverick"
+
+# or
+# python generation.py --model_id="gpt-4.1-mini"
 ```
 
 ## Grading
