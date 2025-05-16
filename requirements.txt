@@ -1,0 +1,9 @@
+# python==3.11.9
+
+datasets==3.5.1
+openai==1.75.0
+fire==0.7.0
+tqdm==4.664
+
+# For local model serving
+vllm==0.8.3
