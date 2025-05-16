@@ -77,3 +77,11 @@ This implementation is part of MEDIC evaluation framework. If you find this repo
   year={2024}
 }
 ```
+```
+@article{arora2025healthbench,
+  title={HealthBench: Evaluating Large Language Models Towards Improved Human Health},
+  author={Arora, Rahul K and Wei, Jason and Hicks, Rebecca Soskin and Bowman, Preston and Qui{\~n}onero-Candela, Joaquin and Tsimpourlas, Foivos and Sharman, Michael and Shah, Meghan and Vallone, Andrea and Beutel, Alex and others},
+  journal={arXiv preprint arXiv:2505.08775},
+  year={2025}
+}
+```
